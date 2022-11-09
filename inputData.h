@@ -11,7 +11,6 @@ struct equityInfo {
 
 };
 
-typedef enum {BUY, SELL} SIDE;
 class Order {
     public:
     Order();
@@ -27,7 +26,7 @@ class Order {
     long long quantity;
     long long expiration;
     long long ID;
-    SIDE side;
+    int side;
     friend class BuyOrder;
     friend class SellOrder;
     friend class MarketMaker;
