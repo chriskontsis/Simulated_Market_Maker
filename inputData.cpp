@@ -11,3 +11,5 @@ Order::Order(long long time_stamp, std::string client_name, std::string ticker_s
     quantity = _quantity;
     expiration = _expiration;
 }
+
+long long Order::ID = 0;
