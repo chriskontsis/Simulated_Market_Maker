@@ -32,7 +32,7 @@ class Order {
     long long price;
     long long quantity;
     long long expiration;
-    long long ID;
+    static long long ID;
     int side;
     friend class BuyComparator;
     friend class SellComparator;
@@ -56,8 +56,8 @@ struct BuyComparator {
 };
 
 
-typedef std::priority_queue<long long, std::vector<long long>, std::greater<long long>> maxHeap;
-typedef std::priority_queue<long long, std::vector<long long>, std::less<long long>> minHeap;
+typedef std::priority_queue<long long, std::vector<long long>, std::greater<long long> > maxHeap;
+typedef std::priority_queue<long long, std::vector<long long>, std::less<long long> > minHeap;
 typedef std::unordered_map<std::string, maxHeap> maxHeaps;
 typedef std::unordered_map<std::string, minHeap> minHeaps;
 typedef std::unordered_map<std::string, clientsInfo> ClientsInfo;
@@ -65,5 +65,5 @@ typedef std::unordered_map<std::string, equityInfo> EquitysInfo;
 typedef std::priority_queue<Order, std::vector<Order>, SellComparator> sellBook;
 typedef std::priority_queue<Order, std::vector<Order>, BuyComparator> buyBook;
 typedef std::unordered_map<std::string, sellBook> sellBooks;
-typedef std::unordered_map<std::string, buyBook> buyBooks;
+typedef std::unordered_map<std::string, buyBook> buyBooks; 
 #endif
