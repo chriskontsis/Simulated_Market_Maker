@@ -20,7 +20,7 @@ struct equityInfo {
 
 class Order {
     public:
-    Order();
+    Order(){};
     Order(long long time_stamp, std::string client_name, std::string ticker_symbol, long long _price,
             long long _quantity, long long _expiration);
 
