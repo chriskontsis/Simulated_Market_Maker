@@ -1,7 +1,7 @@
 #include "MarketMaker.h"
-
 #include<string> 
-MarketMaker::MarketMaker(int argc, char**argv): filename("input.txt"), delimeter(" ") {
+#include <sstream>
+MarketMaker::MarketMaker(int argc, char**argv): filename("test.txt"), delimeter(" "), randomorder(false) {
     
 }
 
@@ -11,12 +11,11 @@ void MarketMaker::start() {
 
     if(!randomorder) {
         std::ifstream myfile(filename);
-
         if(myfile.is_open()) {
             getline(myfile, orderInfo);
 
             while(getline(myfile, orderInfo)) {
-                orderFlow(orderInfo, delimeter, order);
+                parseOrders(orderInfo, delimeter, order);
                 processTime(order);
                 orderMatch(order);
             }
@@ -24,7 +23,7 @@ void MarketMaker::start() {
         }
     }
 
-    print();
+    //print();
 }
 
 void MarketMaker::orderMatch(Order& order) {
@@ -43,8 +42,58 @@ void MarketMaker::processTime(const Order& order) {
 
 }
 
-void MarketMaker::orderFlow(std::string orderInfo, const std::string& delimeter, Order& order) {
-    
+void MarketMaker::parseOrders(std::string orderInfo, const std::string& delimeter, Order& order) {
+    long long timestamp, price, quantity, expiration;
+    int side;
+    std::string clientName, tickerSymbol;
+
+    //parse timestamp
+    auto leftPos = orderInfo.find_first_not_of(delimeter);
+    auto rightPos = orderInfo.find_first_of(delimeter, leftPos);
+    auto info = orderInfo.substr(leftPos, rightPos - leftPos);
+    //timestamp = stoll(info);
+
+    //client name
+    leftPos = orderInfo.find_first_not_of(delimeter, rightPos);
+    rightPos = orderInfo.find_first_of(delimeter, leftPos);
+    info = orderInfo.substr(leftPos, rightPos - leftPos);
+    clientName = info;
+
+    //determining side
+    leftPos = orderInfo.find_first_not_of(delimeter, rightPos);
+    rightPos = orderInfo.find_first_of(delimeter, leftPos);
+    info = orderInfo.substr(leftPos, rightPos - leftPos);
+    if(info == "BUY") side = 0;
+    else if(info == "SELL") side = 1;
+    else {std::cout << "Side not suppoted" << '\n'; exit(-1);}
+
+    //parse ticker info
+    leftPos = orderInfo.find_first_not_of(delimeter, rightPos);
+    rightPos = orderInfo.find_first_of(delimeter, leftPos);
+    info = orderInfo.substr(leftPos, rightPos - leftPos);
+    tickerSymbol = info;
+
+    //price 
+    leftPos = orderInfo.find_first_not_of(delimeter, rightPos);
+    rightPos = orderInfo.find_first_of(delimeter, leftPos);
+    info = orderInfo.substr(leftPos+1, rightPos - leftPos);
+    price = stoi(info);
+
+    //quantity
+    leftPos = orderInfo.find_first_not_of(delimeter, rightPos);
+    rightPos = orderInfo.find_first_of(delimeter, leftPos);
+    info = orderInfo.substr(leftPos+1, rightPos - leftPos);
+    quantity = stoi(info);
+
+    //expiration time
+    leftPos = orderInfo.find_first_not_of(delimeter, rightPos);
+    rightPos = orderInfo.find_first_of(delimeter, leftPos);
+    info = orderInfo.substr(leftPos, rightPos - leftPos);
+    expiration = stoi(info);
+
+    equities.insert(tickerSymbol);
+    Order tempOrder(timestamp, clientName, tickerSymbol, price, quantity, expiration);
+    order = tempOrder;
 }
 
 void MarketMaker::print() {

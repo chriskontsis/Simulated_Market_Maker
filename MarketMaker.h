@@ -15,7 +15,7 @@ class MarketMaker {
     void orderGenerator(Order& order);
     void orderMatch(Order& order);
     void processTime(const Order& order);
-    void orderFlow(std::string orderInfo, const std::string& delimeter, Order& order);
+    void parseOrders(std::string orderInfo, const std::string& delimeter, Order& order);
     void help();
     void print();
     void notEnd(size_t pos);
