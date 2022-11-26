@@ -8,6 +8,7 @@
 #include <string>
 #include <functional>
 
+enum class Side{SELL, BUY};
 struct clientsInfo {
     long long boughtPrice;
     long long soldPrice;
@@ -32,7 +33,7 @@ class Order {
     long long quantity;
     long long expiration;
     static long long ID;
-    int side;
+    Side side;
     friend class BuyComparator;
     friend class SellComparator;
     friend class MarketMaker;
