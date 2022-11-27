@@ -27,7 +27,6 @@ void MarketMaker::start() {
             myfile.close();
         }
     }
-
     //print();
 }
 
@@ -36,8 +35,37 @@ void MarketMaker::orderMatch(Order& order) {
     auto expiration = order.expiration;
     
     if(order.side == Side::BUY) {
-
+        while(!sellBooks[symbol].empty()) {
+            auto bestSell = sellBooks[symbol].top();
+            if(bestSell.expiration != -1 && !(currentStamp - bestSell.timeStamp < bestSell.expiration)) {
+                //order expired remove it
+                sellBooks[symbol].pop(); break;
+            }
+            if(order.price > bestSell.price || order.price == bestSell.price) {
+                if(order.quantity < bestSell.quantity) {
+                    // create a new order after the buyer has made the transaction and push it back into the sell book
+                    auto nextOrder = sellBooks[symbol].top();
+                    nextOrder.quantity = bestSell.quantity - order.quantity;
+                    sellBooks[symbol].pop();
+                    sellBooks[symbol].push(nextOrder);
+                    if(verbose) std::cout << order.clientName << " purchased " << order.quantity <<  " share of " << symbol << " from " << bestSell.clientName << " for $ " << bestSell.price << "/share" << std::endl;
+                    // gather end market stats
+                    commissions += ((bestSell.price*order.quantity) / 100) * 2;
+                    moneyTransfered += bestSell.price*order.quantity;
+                    ++numTrades;
+                    sharesTraded += order.quantity;
+                    //clients stats
+                    clientsInfo[order.clientName].quantityBought += order.quantity;
+                    clientsInfo[order.clientName].netTransfer -= bestSell.price * order.quantity;
+                    clientsInfo[bestSell.clientName].quantitySold += order.quantity;
+                    clientsInfo[bestSell.clientName].netTransfer += bestSell.price * order.quantity;
+                    // median
+                    calcMedian(symbol, bestSell.price);
+                }
+            }
+        }
     }
+
     else {
         
     }
@@ -46,10 +74,25 @@ void MarketMaker::orderMatch(Order& order) {
 void MarketMaker::processTime(const Order& order) {
     if(order.timeStamp != currentStamp) {
         if(median) {
-            
+            for(auto medianPair : medians) {
+                std::cout << "Median match price of " << medianPair.first << " at time " << currentStamp << " is " << medianPair.second << std::endl;
+            }
         }
+        if(midPoint) {
+            for(auto equity : equities) {
+                if(sellBooks[equity].size() == 0 || buyBooks[equity].size() == 0) {
+                    std::cout << "Midpoint of " << equity << " at time " << currentStamp << " is not defined " << std::endl;
+                }
+                else {
+                     std::cout << "Midpoint of " << equity << " at time " << currentStamp << " is $ " << ((sellBooks[equity].top().price + buyBooks[equity].top().price) >> 1) << std::endl;
+                }
+            }
+        }
+        currentStamp = order.timeStamp;
     }
 }  
+
+
 
 void MarketMaker::parseOrders(std::string orderInfo, const std::string& delimeter, Order& order) {
     long long timestamp, price, quantity, expiration;

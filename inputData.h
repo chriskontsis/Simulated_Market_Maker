@@ -10,8 +10,8 @@
 
 enum class Side{SELL, BUY};
 struct clientsInfo {
-    long long boughtPrice;
-    long long soldPrice;
+    long long quantityBought;
+    long long quantitySold;
     long long netTransfer;
 };
 

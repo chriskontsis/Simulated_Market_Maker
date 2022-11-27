@@ -20,7 +20,7 @@ class MarketMaker {
     void print();
     void notEnd(size_t pos);
     void isNum(const std::string& symbol);
-    void medi(const std::string& symbol, long long newprice);
+    void calcMedian(const std::string& symbol, long long newprice);
     sellBooks sellBooks;
     buyBooks buyBooks;
     long long currentStamp;
