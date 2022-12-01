@@ -62,6 +62,9 @@ void MarketMaker::orderMatch(Order& order) {
                     // median
                     calcMedian(symbol, bestSell.price);
                 }
+                else if(order.quantity == bestSell.quantity) {
+                     
+                }
             }
         }
     }
@@ -146,6 +149,10 @@ void MarketMaker::parseOrders(std::string orderInfo, const std::string& delimete
     equities.insert(tickerSymbol);
     Order tempOrder(timestamp, clientName, tickerSymbol, price, quantity, expiration);
     order = tempOrder;
+}
+
+void MarketMaker::calcMedian(const std::string &symbol, long long price) {
+
 }
 
 void MarketMaker::print() {
