@@ -59,11 +59,31 @@ void MarketMaker::orderMatch(Order& order) {
                     clientsInfo[order.clientName].netTransfer -= bestSell.price * order.quantity;
                     clientsInfo[bestSell.clientName].quantitySold += order.quantity;
                     clientsInfo[bestSell.clientName].netTransfer += bestSell.price * order.quantity;
+                    //equity info
+                    equityInfo[symbol].priceVolume.push_back({bestSell.price, order.quantity});
+
                     // median
                     calcMedian(symbol, bestSell.price);
+                    return;
                 }
                 else if(order.quantity == bestSell.quantity) {
-                     
+                    sellBooks[symbol].pop();
+                    if(verbose) std::cout << order.clientName << " purchased " << order.quantity <<  " share of " << symbol << " from " << bestSell.clientName << " for $ " << bestSell.price << "/share" << std::endl;
+                    commissions += ((bestSell.price*order.quantity / 100) * 2);
+                    moneyTransfered += bestSell.price * order.quantity;
+                    ++numTrades;
+                    sharesTraded += order.quantity;
+                    
+                    // update info on clients
+                    clientsInfo[order.clientName].quantityBought += order.quantity;
+                    clientsInfo[order.clientName].netTransfer -= bestSell.price * order.quantity;
+                    clientsInfo[bestSell.clientName].quantityBought += order.quantity;
+                    clientsInfo[bestSell.clientName].netTransfer += bestSell.price * order.quantity;
+
+                    //update equity price volume
+                    equityInfo[symbol].priceVolume.push_back({bestSell.price, order.quantity});
+                    calcMedian(symbol, bestSell.price);
+                    return;
                 }
             }
         }
