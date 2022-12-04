@@ -1,7 +1,7 @@
 #include "MarketMaker.h"
 #include<string> 
 
-MarketMaker::MarketMaker(int argc, char**argv): filename("test.txt"), delimeter(" "), randomorder(false), median(true) {
+MarketMaker::MarketMaker(int argc, char**argv):median(true), randomorder(false), delimeter(" "), filename("test.txt")  {
     currentStamp=0;
     commissions = 0;
     moneyTransfered = 0;
@@ -144,7 +144,7 @@ void MarketMaker::orderMatch(Order& order) {
                     calcMedian(symbol, bestBuy.price);
                     return;
                 }
-                else if(order.quantity == bestSell.quantity) {
+                else if(order.quantity == bestBuy.quantity) {
                     buyBooks[symbol].pop();
                     if(verbose) std::cout << bestBuy.clientName << " purchased " << order.quantity <<  " share of " << symbol << " from " << order.clientName << " for $ " << bestBuy.price << "/share" << std::endl;
                     commissions += ((bestBuy.price*order.quantity) / 100) * 2;
@@ -162,7 +162,7 @@ void MarketMaker::orderMatch(Order& order) {
                     return;
                 }
                 else {
-                    ordder.quantity = order.quantity - bestBuy.quantity;
+                    order.quantity = order.quantity - bestBuy.quantity;
                     buyBooks[symbol].pop();
                     if(verbose) std::cout << bestBuy.clientName << " purchased " << order.quantity <<  " share of " << symbol << " from " << order.clientName << " for $ " << bestBuy.price << "/share" << std::endl;
                     commissions += ((bestBuy.price*order.quantity) / 100) * 2;
@@ -187,7 +187,7 @@ void MarketMaker::orderMatch(Order& order) {
                 if(expiration != 0) sellBooks[symbol].push(order); return;
             }
         }
-        if(expiration != 0) sellBooks[symbol].push_back(order); return;
+        if(expiration != 0) sellBooks[symbol].push(order); return;
     }
 }
 
@@ -264,7 +264,7 @@ void MarketMaker::parseOrders(std::string orderInfo, const std::string& delimete
     expiration = stoi(info);
 
     equities.insert(tickerSymbol);
-    Order tempOrder(timestamp, clientName, tickerSymbol, price, quantity, expiration);
+    Order tempOrder(timestamp, clientName, tickerSymbol, price, quantity, expiration, side);
     order = tempOrder;
 }
 

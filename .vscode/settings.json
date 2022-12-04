@@ -81,6 +81,7 @@
         "iostream": "cpp",
         "map": "cpp",
         "set": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "filesystem": "cpp"
     }
 }

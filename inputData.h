@@ -23,7 +23,7 @@ class Order {
     public:
     Order(){};
     Order(long long time_stamp, std::string client_name, std::string ticker_symbol, long long _price,
-            long long _quantity, long long _expiration);
+            long long _quantity, long long _expiration, Side _side);
 
     private:
     long long timeStamp;
@@ -39,7 +39,8 @@ class Order {
     friend class MarketMaker;
 };
 
-struct SellComparator {
+class SellComparator {
+public:
     bool operator () (const Order& left, const Order& right) {
         if(right.price < left.price) return true;
         if(right.price == left.price && left.timeStamp > right.timeStamp) return true;
@@ -47,7 +48,8 @@ struct SellComparator {
     }
 };
 
-struct BuyComparator {
+class BuyComparator {
+public:
     bool operator() (const Order& left, const Order& right) {
         if(left.price < right.price) return true;
         if(left.price == right.price && left.timeStamp > right.timeStamp) return true;
