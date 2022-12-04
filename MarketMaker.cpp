@@ -136,11 +136,58 @@ void MarketMaker::orderMatch(Order& order) {
 
                     //update client info
                     clientsInfo[bestBuy.clientName].quantityBought += order.quantity;
-                    clientsInfo[bestBuy.clientName].netTransfer -= bestBuy.price - order.quantity;
+                    clientsInfo[bestBuy.clientName].netTransfer -= bestBuy.price * order.quantity;
+                    clientsInfo[order.clientName].quantitySold += order.quantity;
+                    clientsInfo[order.clientName].netTransfer += bestBuy.price*order.quantity;
+
+                    equityInfo[symbol].priceVolume.push_back({bestBuy.price, order.quantity});
+                    calcMedian(symbol, bestBuy.price);
+                    return;
+                }
+                else if(order.quantity == bestSell.quantity) {
+                    buyBooks[symbol].pop();
+                    if(verbose) std::cout << bestBuy.clientName << " purchased " << order.quantity <<  " share of " << symbol << " from " << order.clientName << " for $ " << bestBuy.price << "/share" << std::endl;
+                    commissions += ((bestBuy.price*order.quantity) / 100) * 2;
+                    moneyTransfered += bestBuy.price*order.quantity;
+                    ++numTrades;
+                    sharesTraded+=order.quantity;
+
+                    clientsInfo[bestBuy.clientName].quantityBought += order.quantity;
+                    clientsInfo[bestBuy.clientName].netTransfer -= bestBuy.price * order.quantity;
+                    clientsInfo[order.clientName].quantitySold += order.quantity;
+                    clientsInfo[order.clientName].netTransfer += bestBuy.price*order.quantity;
+
+                    equityInfo[symbol].priceVolume.push_back({bestBuy.price, order.quantity});
+                    calcMedian(symbol, bestBuy.price);
+                    return;
+                }
+                else {
+                    ordder.quantity = order.quantity - bestBuy.quantity;
+                    buyBooks[symbol].pop();
+                    if(verbose) std::cout << bestBuy.clientName << " purchased " << order.quantity <<  " share of " << symbol << " from " << order.clientName << " for $ " << bestBuy.price << "/share" << std::endl;
+                    commissions += ((bestBuy.price*order.quantity) / 100) * 2;
+                    moneyTransfered += bestBuy.price*order.quantity;
+                    ++numTrades;
+                    sharesTraded+=bestBuy.quantity;
+
+                    clientsInfo[bestBuy.clientName].quantityBought += bestBuy.quantity;
+                    clientsInfo[bestBuy.clientName].netTransfer -= bestBuy.price * bestBuy.quantity;
+                    clientsInfo[order.clientName].quantitySold += bestBuy.quantity;
+                    clientsInfo[order.clientName].netTransfer += bestBuy.price*bestBuy.quantity;
                     
+                    equityInfo[symbol].priceVolume.push_back({bestBuy.price, bestBuy.quantity});
+                    static bool flag=true;
+                    if(flag) {
+                        calcMedian(symbol, bestBuy.price);
+                        flag = false;
+                    }
                 }
             }
+            else {
+                if(expiration != 0) sellBooks[symbol].push(order); return;
+            }
         }
+        if(expiration != 0) sellBooks[symbol].push_back(order); return;
     }
 }
 
