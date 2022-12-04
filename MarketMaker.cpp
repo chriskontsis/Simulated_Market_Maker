@@ -85,8 +85,34 @@ void MarketMaker::orderMatch(Order& order) {
                     calcMedian(symbol, bestSell.price);
                     return;
                 }
+                else //parital match
+                {
+                    order.quantity = order.quantity - bestSell.quantity;
+                    sellBooks[symbol].pop();
+                    if(verbose) std::cout << order.clientName << " purchased " << order.quantity <<  " share of " << symbol << " from " << bestSell.clientName << " for $ " << bestSell.price << "/share" << std::endl;
+                    commissions += ((bestSell.price * bestSell.quantity) / 100) * 2;
+                    moneyTransfered += bestSell.price*bestSell.quantity;
+                    ++numTrades;
+                    sharesTraded += bestSell.quantity;
+
+                    //updating client info
+                    clientsInfo[order.clientName].quantityBought += bestSell.quantity;
+                    clientsInfo[order.clientName].netTransfer -= bestSell.price*bestSell.quantity;
+                    clientsInfo[bestSell.clientName].quantityBought += order.quantity;
+                    clientsInfo[bestSell.clientName].netTransfer += bestSell.price*bestSell.quantity;
+
+                    equityInfo[symbol].priceVolume.push_back({bestSell.price, bestSell.quantity});
+                    static bool flag = true;
+                    if(flag) calcMedian(symbol, bestSell.price); flag = false;
+                }
+            }
+            else { 
+                // no match for price
+                if(expiration != 0) buyBooks[symbol].push(order); return;
             }
         }
+        // empty book no match
+        if(expiration != 0) buyBooks[symbol].push(order); return;
     }
 
     else {
