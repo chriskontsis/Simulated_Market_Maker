@@ -1,9 +1,8 @@
 #include "MarketMaker.h"
 #include<string> 
-#include <sstream>
 
 MarketMaker::MarketMaker(int argc, char**argv): filename("test.txt"), delimeter(" "), randomorder(false), median(true) {
-    currentStamp = 0;
+    currentStamp=0;
     commissions = 0;
     moneyTransfered = 0;
     numTrades = 0;
@@ -116,7 +115,32 @@ void MarketMaker::orderMatch(Order& order) {
     }
 
     else {
-        
+        while(!buyBooks[symbol].empty()) {
+            auto bestBuy = buyBooks[symbol].top();
+            if(bestBuy.expiration != -1 && !(currentStamp - bestBuy.timeStamp < bestBuy.expiration)) {
+                // best buy has expired
+                buyBooks[symbol].pop(); break;
+            }
+            if(order.price < bestBuy.price || order.price == bestBuy.price) {
+                if(order.quantity < bestBuy.quantity) {
+                    auto topOrder = buyBooks[symbol].top();
+                    buyBooks[symbol].pop();
+                    topOrder.quantity = bestBuy.quantity - order.quantity;
+                    buyBooks[symbol].push(topOrder);
+                    if(verbose) std::cout << bestBuy.clientName << " purchased " << order.quantity <<  " share of " << symbol << " from " << order.clientName << " for $ " << bestBuy.price << "/share" << std::endl;
+                    
+                    commissions += ((bestBuy.price * order.quantity) / 100) *2;
+                    moneyTransfered += bestBuy.price*order.quantity;
+                    ++numTrades;
+                    sharesTraded+=order.quantity;
+
+                    //update client info
+                    clientsInfo[bestBuy.clientName].quantityBought += order.quantity;
+                    clientsInfo[bestBuy.clientName].netTransfer -= bestBuy.price - order.quantity;
+                    
+                }
+            }
+        }
     }
 }
 
