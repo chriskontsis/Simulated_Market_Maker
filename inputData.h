@@ -34,13 +34,12 @@ class Order {
     long long expiration;
     static long long ID;
     Side side;
-    friend class BuyComparator;
-    friend class SellComparator;
+    friend struct BuyComparator;
+    friend struct SellComparator;
     friend class MarketMaker;
 };
 
-class SellComparator {
-public:
+struct SellComparator {
     bool operator () (const Order& left, const Order& right) {
         if(right.price < left.price) return true;
         if(right.price == left.price && left.timeStamp > right.timeStamp) return true;
@@ -48,8 +47,7 @@ public:
     }
 };
 
-class BuyComparator {
-public:
+struct BuyComparator {
     bool operator() (const Order& left, const Order& right) {
         if(left.price < right.price) return true;
         if(left.price == right.price && left.timeStamp > right.timeStamp) return true;
@@ -58,14 +56,14 @@ public:
 };
 
 
-typedef std::priority_queue<long long, std::vector<long long>, std::greater<long long> > maxHeap;
-typedef std::priority_queue<long long, std::vector<long long>, std::less<long long> > minHeap;
-typedef std::unordered_map<std::string, maxHeap> maxHeaps;
-typedef std::unordered_map<std::string, minHeap> minHeaps;
-typedef std::unordered_map<std::string, clientsInfo> ClientsInfo;
-typedef std::unordered_map<std::string, equityInfo> EquitysInfo;
-typedef std::priority_queue<Order, std::vector<Order>, SellComparator> sellBook;
-typedef std::priority_queue<Order, std::vector<Order>, BuyComparator> buyBook;
-typedef std::unordered_map<std::string, sellBook> sellBooks;
-typedef std::unordered_map<std::string, buyBook> buyBooks; 
+using maxHeap = std::priority_queue<long long, std::vector<long long>, std::greater<long long> >;
+using minHeap = std::priority_queue<long long, std::vector<long long>, std::less<long long> > ;
+using maxHeaps = std::unordered_map<std::string, maxHeap>;
+using minHeaps = std::unordered_map<std::string, minHeap>;
+using ClientsInfo = std::unordered_map<std::string, clientsInfo>;
+using EquitysInfo = std::unordered_map<std::string, equityInfo>;
+using sellBook =  std::priority_queue<Order, std::vector<Order>, SellComparator>;
+using buyBook = std::priority_queue<Order, std::vector<Order>, BuyComparator>;
+using sellBooks = std::unordered_map<std::string, sellBook>;
+using buyBooks = std::unordered_map<std::string, buyBook>; 
 #endif
