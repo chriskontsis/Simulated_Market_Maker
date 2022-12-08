@@ -269,7 +269,40 @@ void MarketMaker::parseOrders(std::string orderInfo, const std::string& delimete
 }
 
 void MarketMaker::calcMedian(const std::string &symbol, long long price) {
-
+    if(minHeaps[symbol].size() == maxHeaps[symbol].size()) {
+        if(price < medians[symbol]) {
+            minHeaps[symbol].push(price);
+            medians[symbol] = minHeaps[symbol].top();
+        }
+        else {
+            maxHeaps[symbol].push(price);
+            medians[symbol] = maxHeaps[symbol].top();
+        }
+    }
+    else if(minHeaps[symbol].size() < maxHeaps[symbol].size()) {
+        if(price <  medians[symbol] || price == medians[symbol]) {
+            minHeaps[symbol].push(price);
+            medians[symbol] = (minHeaps[symbol].top() + maxHeaps[symbol].top()) >> 1;
+        }  
+        else {
+            maxHeaps[symbol].push(price);
+            minHeaps[symbol].push(maxHeaps[symbol].top());
+            maxHeaps[symbol].pop();
+            medians[symbol] = (maxHeaps[symbol].top() + minHeaps[symbol].top()) >> 1;
+        }
+    }
+    else {
+        if(price > medians[symbol] || price == medians[symbol]) {
+            maxHeaps[symbol].push(price);
+            medians[symbol] = (maxHeaps[symbol].top() + minHeaps[symbol].top()) >> 1;
+        }
+        else {
+            minHeaps[symbol].push(price);
+            maxHeaps[symbol].push(minHeaps[symbol].top());
+            minHeaps[symbol].pop();
+            medians[symbol] = (minHeaps[symbol].top() + maxHeaps[symbol].top()) >> 1;
+        }
+    }
 }
 
 void MarketMaker::print() {
