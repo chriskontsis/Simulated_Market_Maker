@@ -1,5 +1,6 @@
 #ifndef INPUTDATA_H
 #define INPUTDATA_H
+
 #include <queue>
 #include <vector>
 #include <map>
