@@ -1,7 +1,7 @@
 #include "MarketMaker.h"
 #include<string> 
 
-MarketMaker::MarketMaker(int argc, char**argv):median(true), randomorder(false), delimeter(" "), filename("test.txt")  {
+MarketMaker::MarketMaker(int argc, char**argv):median(true), randomorder(false), delimeter(" "), filename("test.txt"), verbose(true)  {
     currentStamp=0;
     commissions = 0;
     moneyTransfered = 0;
@@ -26,7 +26,7 @@ void MarketMaker::start() {
             myfile.close();
         }
     }
-    //print();
+    print();
 }
 
 void MarketMaker::orderMatch(Order& order) {
@@ -306,5 +306,26 @@ void MarketMaker::calcMedian(const std::string &symbol, long long price) {
 }
 
 void MarketMaker::print() {
+    std::cout << '\n' << "End of Day" << std::endl;
+    std::cout << "--------------------------" << std::endl;
+    std::cout << "Commission Earnings: $" << commissions << std::endl;
+    std::cout << "Total Amount of Money Transferred: $" << moneyTransfered << std::endl;
+    std::cout << "Number of Completed Trades: " << numTrades << std::endl;
+    std::cout << "Number of Shares Traded: " << sharesTraded << std::endl;
 
+    if(VWAP) {
+        for(auto& equity : equities) {
+            if(equityInfo.find(equity) != equityInfo.end()) {
+                long long total = 0, numShares = 0;
+                for(auto priceVolume : equityInfo.at(equity).priceVolume) {
+                    total += priceVolume.first*priceVolume.second;
+                    numShares+=priceVolume.second;
+                }
+                std::cout << equity << "'s volume weighted average price : $" << total / numShares << std::endl;
+            }
+            else {
+                std::cout << equity << "'s volume weighted average price : $" << -1 << std::endl;
+            }
+        }
+    }
 }
